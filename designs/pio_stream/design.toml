@@ -1,0 +1,26 @@
+[design]
+name = "pio_stream"
+description = "Continuous lossless FPGA->RP2350 stream: 8-bit counter on GPIO8-15, link clock driven by the RP2350 PIO on GPIO26"
+version = "001"
+design_id = 8
+kind = "user"
+clock_hz = 31250000
+capabilities = ["IO_BUFFER", "PIO_LINK"]
+repository = "https://github.com/freewili/wilifpga"
+
+# Inner-net link with RP2350-driven clock: the RP2350's PIO generates the link
+# clock on GPIO26 (LINK_RP2F) and stops it whenever its buffers are full, so the
+# FPGA only advances when the host can take the next byte (lossless back-pressure).
+# Data rides FPGA -> RP2350 on the eight shifter signals (LINK_F2RP); the header
+# is isolated. GPIO27 stays a stock passthrough.
+[io_profile]
+spi_miso = "LINK_F2RP"
+spi_cs = "LINK_F2RP"
+spi_sclk = "LINK_F2RP"
+spi_mosi = "LINK_F2RP"
+uart_tx = "LINK_F2RP"
+uart_rx = "LINK_F2RP"
+uart_cts = "LINK_F2RP"
+uart_rts = "LINK_F2RP"
+gpio26 = "LINK_RP2F"
+gpio27 = "PASS_OUT"

@@ -1,0 +1,24 @@
+[design]
+name          = "pwm8"
+description   = "Eight PWM channels (1 kHz default) on the eight shifter-driven header signals; duty 0x10-0x17, prescale 0x18, enable 0x19"
+version       = "001"
+design_id     = 4
+kind          = "user"
+clock_hz      = 31250000
+capabilities  = ["IO_BUFFER"]
+repository    = "wilifpga"
+
+# One mode per header signal (docs/fwfpga-format.md): PASS_OUT PASS_IN FPGA_OUT
+# FPGA_IN LINK_RP2F LINK_F2RP OFF. The shell, the ID block and the .fwfpga
+# header are all generated from this table.
+[io_profile]
+spi_miso = "FPGA_OUT"
+spi_cs   = "FPGA_OUT"
+spi_sclk = "FPGA_OUT"
+spi_mosi = "FPGA_OUT"
+uart_tx  = "FPGA_OUT"
+uart_rx  = "FPGA_OUT"
+uart_cts = "FPGA_OUT"
+uart_rts = "FPGA_OUT"
+gpio26   = "PASS_IN"
+gpio27   = "PASS_OUT"

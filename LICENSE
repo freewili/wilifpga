@@ -1,0 +1,31 @@
+FreeWili 2 Hardware License
+
+Copyright (c) 2026 FreeWili
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software, gateware and associated documentation (the "Software"), to
+use, copy, modify, merge, publish and distribute the Software, and to build
+and distribute FPGA configurations and other works that include it, subject
+to the following conditions:
+
+1. Hardware restriction. The Software, and any FPGA configuration, bitstream
+   or other work that includes any part of the Software, may be used only
+   with, and only to develop for, FreeWili 2 hardware. No right is granted to
+   use them with any other hardware.
+
+2. The above copyright notice, this permission notice and the hardware
+   restriction shall be included in all copies or substantial portions of
+   the Software.
+
+This license does not claim ownership of code you write yourself (for example
+your own user_core.v). It applies to the Software and to any work insofar as
+it includes the Software, such as a bitstream built with the shell in
+fpga/shell.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

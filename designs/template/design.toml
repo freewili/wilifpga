@@ -1,0 +1,24 @@
+[design]
+name          = "template"
+description   = "Template design: register 0x10 bit 0 drives GPIO26"
+version       = "001"
+design_id     = 1
+kind          = "user"
+clock_hz      = 31250000
+capabilities  = ["IO_BUFFER"]
+repository    = "wilifpga"
+
+# One mode per header signal (docs/fwfpga-format.md): PASS_OUT PASS_IN FPGA_OUT
+# FPGA_IN LINK_RP2F LINK_F2RP OFF. The shell, the ID block and the .fwfpga
+# header are all generated from this table.
+[io_profile]
+spi_miso = "PASS_IN"
+spi_cs   = "PASS_OUT"
+spi_sclk = "PASS_OUT"
+spi_mosi = "PASS_OUT"
+uart_tx  = "PASS_OUT"
+uart_rx  = "PASS_IN"
+uart_cts = "PASS_IN"
+uart_rts = "PASS_OUT"
+gpio26   = "FPGA_OUT"
+gpio27   = "PASS_OUT"

@@ -1,0 +1,24 @@
+[design]
+name = "pio_link"
+description = "T2 parallel link: 8-bit counter on the inner nets GPIO8-15, link clock on GPIO26, for MAIN PIO1 capture"
+version = "001"
+design_id = 7
+kind = "user"
+clock_hz = 31250000
+capabilities = ["IO_BUFFER", "PIO_LINK"]
+repository = "https://github.com/freewili/wilifpga"
+
+# Inner-net link: the FPGA drives the RP2350 side of every shifter signal and
+# GPIO26 (the link clock); the header is isolated (shifters toward board, _Out
+# pads Z). GPIO27 stays a stock passthrough.
+[io_profile]
+spi_miso = "LINK_F2RP"
+spi_cs = "LINK_F2RP"
+spi_sclk = "LINK_F2RP"
+spi_mosi = "LINK_F2RP"
+uart_tx = "LINK_F2RP"
+uart_rx = "LINK_F2RP"
+uart_cts = "LINK_F2RP"
+uart_rts = "LINK_F2RP"
+gpio26 = "LINK_F2RP"
+gpio27 = "PASS_OUT"

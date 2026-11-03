@@ -1,0 +1,27 @@
+// fw2_lint.vlt - verilator waivers for `verilator --lint-only -Wall` over
+// fw2_shell + a design. Every waiver is deliberate and explained; a design is
+// expected to be clean without adding to this file.
+`verilator_config
+
+// iCE40 flip-flops have a defined power-up value and yosys honours
+// `reg x = <init>;` on this target; the shell relies on it for the power-up
+// reset cycle (fw2_rst_ctrl_reg.resetn starts low) and for IO_ARM starting at
+// 0 before the first clock. PROCASSINIT is a style warning about exactly that
+// idiom, so it is waived project-wide.
+lint_off -rule PROCASSINIT
+
+// Harvested verbatim (fpga/lib/spi_slave/spi_slave.v): 32-bit integer
+// arithmetic on 4-bit counters and nonblocking assignments in a combinational
+// block. Behaviour is correct; the file is kept byte-identical to the stock
+// gateware, so its style warnings are waived here instead of edited.
+lint_off -rule WIDTHEXPAND -file "*/spi_slave.v"
+lint_off -rule WIDTHTRUNC  -file "*/spi_slave.v"
+lint_off -rule COMBDLY     -file "*/spi_slave.v"
+lint_off -rule BLKSEQ      -file "*/spi_slave.v"
+
+// The ten passthrough pairs in fw2_shell are tri-state loops between two pads
+// by construction (PASS_OUT: _Out follows _Rp; PASS_IN: _Rp follows _Out) with
+// mutually exclusive, compile-time output enables. Verilator cannot see the
+// exclusion and reports a circular combinational path (a performance warning,
+// not a logic error); the stock io_buffer has the same structure.
+lint_off -rule UNOPTFLAT -file "*/fw2_shell.v"

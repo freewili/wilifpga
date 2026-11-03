@@ -1,0 +1,24 @@
+[design]
+name = "pio_sink"
+description = "RP2350->FPGA link: PIO drives a byte on GPIO8-15 and the clock on GPIO26; the FPGA counts bytes and counter-pattern errors"
+version = "001"
+design_id = 9
+kind = "user"
+clock_hz = 31250000
+capabilities = ["IO_BUFFER", "PIO_LINK"]
+repository = "https://github.com/freewili/wilifpga"
+
+# Inner-net link, RP2350 -> FPGA: the RP2350's PIO drives the eight data lines
+# and the link clock (all LINK_RP2F). The FPGA checks every byte against the
+# previous one + 1 and keeps byte and error counts. GPIO27 stays a passthrough.
+[io_profile]
+spi_miso = "LINK_RP2F"
+spi_cs = "LINK_RP2F"
+spi_sclk = "LINK_RP2F"
+spi_mosi = "LINK_RP2F"
+uart_tx = "LINK_RP2F"
+uart_rx = "LINK_RP2F"
+uart_cts = "LINK_RP2F"
+uart_rts = "LINK_RP2F"
+gpio26 = "LINK_RP2F"
+gpio27 = "PASS_OUT"

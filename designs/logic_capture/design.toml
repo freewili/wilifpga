@@ -1,0 +1,24 @@
+[design]
+name          = "logic_capture"
+description   = "8-channel logic sampler on the shifter-driven header signals into the stream FIFO; GPIO26 trigger"
+version       = "001"
+design_id     = 6
+kind          = "user"
+clock_hz      = 31250000
+capabilities  = ["IO_BUFFER", "STREAM"]
+repository    = "wilifpga"
+
+# One mode per header signal (docs/fwfpga-format.md): PASS_OUT PASS_IN FPGA_OUT
+# FPGA_IN LINK_RP2F LINK_F2RP OFF. The shell, the ID block and the .fwfpga
+# header are all generated from this table.
+[io_profile]
+spi_miso = "FPGA_IN"
+spi_cs   = "FPGA_IN"
+spi_sclk = "FPGA_IN"
+spi_mosi = "FPGA_IN"
+uart_tx  = "FPGA_IN"
+uart_rx  = "FPGA_IN"
+uart_cts = "FPGA_IN"
+uart_rts = "FPGA_IN"
+gpio26   = "FPGA_IN"
+gpio27   = "PASS_OUT"
