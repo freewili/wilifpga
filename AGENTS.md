@@ -105,8 +105,6 @@ Bus details: `docs/drivers/shell.md`.
   first when nothing happens.
 - **Header GPIO26 and GPIO27 go high for up to about 250 ms during every
   load.** Do not connect anything to them that a stray high level would harm.
-- **`uart_rx` (GPIO9) as `FPGA_OUT` did not drive the header pin** in
-  testing. Do not use it as a header output; its `LINK_*` modes work.
 - **I2C SDA/SCL only pass by the FPGA.** Leave them alone unless the design
   has the `I2C_SLAVE` capability.
 - **Clock**: `clock_hz` picks 31.25, 12.5, 25 or 48 MHz. 31.25 MHz has

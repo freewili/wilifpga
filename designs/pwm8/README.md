@@ -26,9 +26,6 @@ tools/fwfpga load pwm8
 The testbench checks the defaults, a 50 % channel at the 1 kHz default (15 616 / 31 232
 clocks) and a 25 % channel at prescale 0.
 
-UART RX (header pin 5, GPIO9) did not drive its header pin in testing;
-do not rely on that channel.
-
 ## Verify
 
 All eight header LEDs off after load. `fwfpga reg w 0x19 0xFF` (enable all)
