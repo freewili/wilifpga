@@ -199,10 +199,11 @@ begin
       end
       `FW2_MODE_FPGA_OUT: begin
         if (hdr_pad[s] !== 1'b1) begin $display("FAIL sig %0d FPGA_OUT: hdr %b != 1 (user drives 1)", s, hdr_pad[s]); $fatal(1); end
-        if (rp_pad[s] !== 1'bz) begin $display("FAIL sig %0d FPGA_OUT: rp must be Z, is %b", s, rp_pad[s]); $fatal(1); end
+        // the inner net mirrors the header level so the RP2350 logic analyzer sees it
+        if (rp_pad[s] !== hdr_pad[s]) begin $display("FAIL sig %0d FPGA_OUT: rp %b must mirror hdr %b", s, rp_pad[s], hdr_pad[s]); $fatal(1); end
       end
       `FW2_MODE_FPGA_IN: begin
-        if (rp_pad[s] !== 1'bz) begin $display("FAIL sig %0d FPGA_IN: rp must be Z, is %b", s, rp_pad[s]); $fatal(1); end
+        if (rp_pad[s] !== stim[s]) begin $display("FAIL sig %0d FPGA_IN: rp %b must mirror hdr %b", s, rp_pad[s], stim[s]); $fatal(1); end
         if (hdr_pad[s] !== stim[s]) begin $display("FAIL sig %0d FPGA_IN: hdr contention %b", s, hdr_pad[s]); $fatal(1); end
       end
       `FW2_MODE_LINK_RP2F: begin
@@ -466,7 +467,10 @@ initial begin
   bfm.reg_write(7'h1F, 8'h00);
   #(4*CLK_HALF_NS);
   for (i = 4; i < 10; i = i + 1)
-    if (mode_of(i) == `FW2_MODE_FPGA_OUT) check(hdr_pad[i] === 1'b0, "FPGA_OUT pad follows hdr_out = 0");
+    if (mode_of(i) == `FW2_MODE_FPGA_OUT) begin
+      check(hdr_pad[i] === 1'b0, "FPGA_OUT pad follows hdr_out = 0");
+      check(rp_pad[i] === 1'b0, "FPGA_OUT inner pad mirrors hdr_out = 0");
+    end
   bfm.reg_write(7'h1E, 8'hFF);
   bfm.reg_write(7'h1F, 8'h03);
   $display("  armed drivers ok: exactly the profile's outputs drive");
@@ -648,4 +652,50 @@ initial begin
   $fatal(1, "tb_shell: timeout");
 end
 
+endmodule
+
+// ---------------------------------------------------------------------------
+// tb_io_mirror: the inner-net mirror of FPGA_OUT / FPGA_IN, on a profile the
+// shell testbench does not have (FPGA_OUT on an SPI signal), straight on
+// fw2_io_buffer. Inside the IO_CONFIG_ENABLE window the SPI inner nets belong
+// to the register bus, so the mirror must not drive them.
+// ---------------------------------------------------------------------------
+module tb_io_mirror;
+// spi_miso FPGA_OUT, spi_cs FPGA_IN, spi_sclk FPGA_OUT, the rest OFF
+localparam [29:0] P = ({10{`FW2_MODE_OFF}} & ~30'h1FF)
+                    | {`FW2_MODE_FPGA_OUT, `FW2_MODE_FPGA_IN, `FW2_MODE_FPGA_OUT} ;
+reg cfg = 1'b0, arm = 1'b0, miso_bus = 1'b0;
+reg [9:0] hdr_i = 10'd0;
+wire [9:0] rp_o, rp_oe, hdr_o, hdr_oe_pad, hdr_in, rp_in, dir_bits;
+wire d26, d27;
+fw2_io_buffer #(.PROFILE(P)) dut (
+  .io_config_enable(cfg), .arm(arm), .spi_miso_bus(miso_bus),
+  .rp_i(10'd0), .rp_o(rp_o), .rp_oe(rp_oe), .hdr_i(hdr_i), .hdr_o(hdr_o),
+  .hdr_oe_pad(hdr_oe_pad), .gpio_26_dir(d26), .gpio_27_dir(d27),
+  .hdr_in(hdr_in), .hdr_out(10'h3FF), .hdr_oe(10'h3FF),
+  .rp_in(rp_in), .rp_out(10'd0), .dir_bits(dir_bits));
+task chk(input c, input [8*60-1:0] why);
+begin
+  if (!c) begin $display("FAIL tb_io_mirror: %0s", why); $fatal(1); end
+end
+endtask
+initial begin
+  #1;
+  // disarmed: nothing drives the inner net
+  chk(rp_oe[2:0] === 3'b000, "disarmed: no inner pad drives");
+  arm = 1'b1; hdr_i = 10'b010; #1;
+  chk(rp_oe[2:0] === 3'b111, "armed: FPGA_OUT and FPGA_IN inner pads drive");
+  chk(rp_o[2:0] === 3'b010, "armed: inner net follows header level (1)");
+  hdr_i = 10'b101; #1;
+  chk(rp_o[2:0] === 3'b101, "armed: inner net follows header level (2)");
+  // register-bus window: SPI inner nets belong to the bus, mirror must not drive them
+  cfg = 1'b1; #1;
+  chk(rp_oe[0] === 1'b1 && rp_o[0] === miso_bus, "window: MISO carries the bus, not the mirror");
+  miso_bus = 1'b1; #1;
+  chk(rp_o[0] === 1'b1, "window: MISO follows bus (1) with header low");
+  chk(rp_oe[2:1] === 2'b00, "window: FPGA_IN/FPGA_OUT SPI inner pads not driven by the mirror");
+  cfg = 1'b0; arm = 1'b0; #1;
+  chk(rp_oe[2:0] === 3'b000, "disarmed again: released");
+  $display("tb_io_mirror ok");
+end
 endmodule

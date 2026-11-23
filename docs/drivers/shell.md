@@ -149,11 +149,13 @@ Arm gate behaviour (`fw2_io_buffer.v`, enforced in `tb_shell`):
   high**, so the firmware can read the ID block.
 * `IO_ARM = 1`: pads drive exactly as the profile says (`PASS_OUT`: `_Out`
   follows `_Rp`; `PASS_IN`: `_Rp` follows `_Out`; `FPGA_OUT`: `_Out` =
-  `hdr_out & hdr_oe`; `LINK_F2RP`: `_Rp` = `rp_out`; everything else Z), DIR
+  `hdr_out & hdr_oe`; `LINK_F2RP`: `_Rp` = `rp_out`; `FPGA_OUT`/`FPGA_IN`: `_Rp` = header level
+  (a mirror, so the RP2350 logic analyzer sees FPGA-owned pins); everything else Z), DIR
   balls = 1 for `PASS_OUT`/`FPGA_OUT` on GPIO26/27.
 * Inside the IO_CONFIG_ENABLE window the four SPI inner nets belong to the bus
   regardless of arm (MISO_Rp driven, CS/SCK/MOSI `_Rp` released) and the
-  `PASS_OUT` SPI `_Out` pads release (stock behaviour). `FPGA_OUT` pads keep driving through the window (they do not depend on the
+  `PASS_OUT` SPI `_Out` pads release (stock behaviour); the `FPGA_OUT`/`FPGA_IN`
+  mirror does not drive the SPI inner nets there either. `FPGA_OUT` pads keep driving through the window (they do not depend on the
   inner net), so a design driving the SPI header pins does not glitch on every
   register access.
 * `IO_ARM = 0` or a reset returns everything to Z without disturbing the

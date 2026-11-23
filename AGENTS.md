@@ -72,8 +72,8 @@ signal in `design.toml [io_profile]`:
 
 | Mode | Header pin | Use |
 |---|---|---|
-| `FPGA_OUT` | FPGA drives it | outputs from your logic |
-| `FPGA_IN` | drives the FPGA | inputs to your logic |
+| `FPGA_OUT` | FPGA drives it | outputs from your logic; the inner net mirrors the header level |
+| `FPGA_IN` | drives the FPGA | inputs to your logic; the inner net mirrors the header level |
 | `LINK_RP2F` | not used | fast link, RP2350 → FPGA, on the inner net |
 | `LINK_F2RP` | not used | fast link, FPGA → RP2350, on the inner net |
 | `PASS_OUT` | RP2350 drives it through the FPGA | stock behaviour |

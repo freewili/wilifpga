@@ -71,13 +71,16 @@ a non-shell bitstream can drive pads before the firmware reads a bad ID block.
 
 ```verilog
 // fpga/shell/fw2_io_buffer.v (per signal, compile-time MODE)
-assign rp_oe[i]      = cfg ? IS_MISO : (arm & (rp_pass | rp_link));
+assign rp_oe[i]      = cfg ? IS_MISO : (arm & (rp_pass | rp_link | rp_mirror));
+assign rp_o[i]       = cfg ? spi_miso_bus : ((rp_pass | rp_mirror) ? hdr_i[i] : rp_out[i]);
 assign hdr_oe_pad[i] = arm & ((hdr_pass & ~cfg) | hdr_user);
 assign dir_bits[i]   = (MODE == PASS_OUT) | (MODE == FPGA_OUT);
 ```
 
 No register changes a direction: writes to 0x02/0x03 are ignored and read back
-the profile, HSBDIO (0x04) is absent. Every pad is an explicit `SB_IO`
+the profile, HSBDIO (0x04) is absent. `rp_mirror` (`FPGA_OUT` or `FPGA_IN`)
+copies the header level onto the inner net while armed so the RP2350 logic
+analyzer sees FPGA-owned pins; it is never active inside the register-bus window. Every pad is an explicit `SB_IO`
 (`fpga/shell/fw2_pad.v`) so a compile-time "input" can never be folded into a
 driven constant by synthesis; `fpga/sim/check_netlist_pads.py` verifies that on
 the synthesised netlist of every build. `hdr_oe` from the user core is honoured
