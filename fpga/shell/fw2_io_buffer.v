@@ -22,6 +22,8 @@
 //   * every output enable and both DIR balls are ANDed with arm (contract
 //     rule 9); the single exception is spi_miso_rp inside the window;
 //   * FPGA_OUT / FPGA_IN / LINK_* modes hand the pad to the user core bundles;
+//   * FPGA_OUT / FPGA_IN also copy the header level onto the inner net (armed,
+//     outside the register-bus window) so the RP2350 logic analyzer sees it;
 //   * no HSBDIO (GPIO26 direction following GPIO27) and no swap flag on CTS.
 // ---------------------------------------------------------------------------
 `include "fw2_profile.vh"
@@ -67,15 +69,19 @@ generate
 
     wire rp_pass  = (MODE == `FW2_MODE_PASS_IN);
     wire rp_link  = (MODE == `FW2_MODE_LINK_F2RP);
+    // FPGA-owned header pins are copied onto the inner net so the RP2350
+    // (logic analyzer) can see them. Outside the window only; the RP2350 pin
+    // is an input with no pull for these modes.
+    wire rp_mirror = (MODE == `FW2_MODE_FPGA_OUT) | (MODE == `FW2_MODE_FPGA_IN);
     wire hdr_pass = (MODE == `FW2_MODE_PASS_OUT);
     wire hdr_user = (MODE == `FW2_MODE_FPGA_OUT) & hdr_oe[i];
 
     // Inner net: the only pad allowed to drive while disarmed is spi_miso_rp
     // inside the window (register bus read data).
     assign rp_oe[i] = cfg ? (IS_MISO ? 1'b1 : 1'b0)
-                          : (arm & (rp_pass | rp_link));
+                          : (arm & (rp_pass | rp_link | rp_mirror));
     assign rp_o[i]  = cfg ? spi_miso_bus
-                          : (rp_pass ? hdr_i[i] : rp_out[i]);
+                          : ((rp_pass | rp_mirror) ? hdr_i[i] : rp_out[i]);
 
     // Outer net: PASS_OUT repeats the inner net except while the window has
     // borrowed the SPI inner nets (stock behaviour); FPGA_OUT keeps driving

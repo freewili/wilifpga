@@ -87,11 +87,15 @@ Per-mode settings, which the firmware and the shell both apply:
 |---|---|---|---|---|
 | `PASS_OUT` | out | in | out | to header |
 | `PASS_IN` | in | out | in | to board |
-| `FPGA_OUT` | in, no pull | Z | out | to header |
-| `FPGA_IN` | in, no pull | Z | in | to board |
+| `FPGA_OUT` | in, no pull | out (copy of header level) | out | to header |
+| `FPGA_IN` | in, no pull | out (copy of header level) | in | to board |
 | `LINK_RP2F` | out | in | Z | to board |
 | `LINK_F2RP` | in | out | Z | to board |
 | `OFF` | in | Z | Z | to board |
+
+For `FPGA_OUT` and `FPGA_IN` the shell copies the header pad level onto `_Rp`
+once armed (never inside the register-bus window), so the RP2350 logic
+analyzer can see pins the FPGA owns. The RP2350 pin stays an input with no pull.
 
 The stock profile (`spi_miso`, `uart_rx`, `uart_cts`, `gpio26` = `PASS_IN`,
 the rest `PASS_OUT`) packs to `0x01048001`. The one-line summary shown by

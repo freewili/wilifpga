@@ -22,7 +22,9 @@ When you run `fwfpga load` (firmware `h\f\l`), the firmware:
    file's header field for field. On a mismatch it restores the stock
    gateware.
 6. **Arms the design** (`IO_ARM`), and only then turns on the RP2350 outputs
-   the profile asks for (`PASS_OUT`, `LINK_RP2F`).
+   the profile asks for (`PASS_OUT`, `LINK_RP2F`). From this point the shell
+   also mirrors the header level of `FPGA_OUT` and `FPGA_IN` signals onto the
+   RP2350 pin (which stays an input), so the logic analyzer sees them.
 
 Any failure, a configuration loss or an FPGA power cycle goes back through
 the same steps, with the stock gateware or the last requested design. While a
